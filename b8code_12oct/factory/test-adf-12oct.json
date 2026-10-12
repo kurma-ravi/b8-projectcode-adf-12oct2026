@@ -1,0 +1,15 @@
+{
+	"name": "test-adf-12oct",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "5fb04618-b81e-4a32-87d5-bbcb7bdcc83e",
+		"tenantId": "12997c62-7eef-42b7-91bd-41e7bed4646c"
+	}
+}

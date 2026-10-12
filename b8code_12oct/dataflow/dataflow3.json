@@ -1,0 +1,160 @@
+{
+	"name": "dataflow3",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "datalakhDelimitedText5",
+						"type": "DatasetReference"
+					},
+					"name": "datlaksource1"
+				},
+				{
+					"dataset": {
+						"referenceName": "destionAzureSqlTable3",
+						"type": "DatasetReference"
+					},
+					"name": "destnationsource1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "destAzureSqlTable3",
+						"type": "DatasetReference"
+					},
+					"name": "sink1destiondb"
+				},
+				{
+					"dataset": {
+						"referenceName": "destioAzureSqlTable3",
+						"type": "DatasetReference"
+					},
+					"name": "destionsink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "hashcode1derivedColumn1"
+				},
+				{
+					"name": "hashcode2derivedColumn1"
+				},
+				{
+					"name": "exists1hashcode1"
+				},
+				{
+					"name": "isactivtyderivedColumn1"
+				},
+				{
+					"name": "select1romehashcode"
+				},
+				{
+					"name": "exists2hashcode2"
+				},
+				{
+					"name": "exists1hashcode"
+				},
+				{
+					"name": "activtyderivedColumn1"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     partitionBy('hash', 1)) ~> datlaksource1",
+				"source(output(",
+				"          sur_key as integer,",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string,",
+				"          is_activty as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     partitionBy('hash', 1)) ~> destnationsource1",
+				"datlaksource1 derive(hash_code = md5(emp_id,full_name,salary,location),",
+				"     partitionBy('hash', 1)) ~> hashcode1derivedColumn1",
+				"destnationsource1 derive(hash_code = md5(emp_id,full_name,salary,location),",
+				"     partitionBy('hash', 1)) ~> hashcode2derivedColumn1",
+				"hashcode1derivedColumn1, hashcode2derivedColumn1 exists(hashcode1derivedColumn1@hash_code == hashcode2derivedColumn1@hash_code,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> exists1hashcode1",
+				"exists1hashcode1 derive(is_activty = 1,",
+				"     partitionBy('hash', 1)) ~> isactivtyderivedColumn1",
+				"isactivtyderivedColumn1 select(mapColumn(",
+				"          emp_id,",
+				"          full_name,",
+				"          salary,",
+				"          location,",
+				"          is_activty",
+				"     ),",
+				"     partitionBy('hash', 1),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1romehashcode",
+				"hashcode2derivedColumn1, hashcode1derivedColumn1 exists(destnationsource1@emp_id == datlaksource1@emp_id,",
+				"     negate:false,",
+				"     partitionBy('hash', 1),",
+				"     broadcast: 'auto')~> exists2hashcode2",
+				"exists2hashcode2, exists1hashcode1 exists(hashcode2derivedColumn1@hash_code == hashcode1derivedColumn1@hash_code,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> exists1hashcode",
+				"exists1hashcode derive(is_activty = 0,",
+				"     partitionBy('hash', 1)) ~> activtyderivedColumn1",
+				"activtyderivedColumn1 alterRow(updateIf(true()),",
+				"     partitionBy('hash', 1)) ~> alterRow1",
+				"select1romehashcode sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          sur_key as integer,",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string,",
+				"          is_activty as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1destiondb",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          sur_key as integer,",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string,",
+				"          is_activty as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> destionsink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,46 @@
+{
+	"name": "destnationAzureSqlTable3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "surrkey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "emp_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "full_name",
+				"type": "varchar"
+			},
+			{
+				"name": "salary",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "location",
+				"type": "varchar"
+			},
+			{
+				"name": "Is_Ativity",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "emplyoeeA"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

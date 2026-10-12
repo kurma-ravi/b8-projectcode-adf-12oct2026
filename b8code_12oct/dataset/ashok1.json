@@ -1,0 +1,19 @@
+{
+	"name": "ashok1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "weather.csv",
+				"fileSystem": "source1"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

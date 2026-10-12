@@ -1,0 +1,152 @@
+{
+	"name": "dataflow2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "datalakDelimitedText5",
+						"type": "DatasetReference"
+					},
+					"name": "source1datalake"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference"
+					},
+					"name": "azursqlsource1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "destnatonAzureSqlTable3",
+						"type": "DatasetReference"
+					},
+					"name": "azuresqlsink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "hashcodederivedColumn1"
+				},
+				{
+					"name": "hashcode2derivedColumn1"
+				},
+				{
+					"name": "hashcodeexists1"
+				},
+				{
+					"name": "isactivyderivedColumn1"
+				},
+				{
+					"name": "insectselect1"
+				},
+				{
+					"name": "updateexists1"
+				},
+				{
+					"name": "exists1hc"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "updatealterRow1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     partitionBy('hash', 1)) ~> source1datalake",
+				"source(output(",
+				"          surrkey as integer,",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string,",
+				"          Is_Ativity as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     partitionBy('hash', 1)) ~> azursqlsource1",
+				"source1datalake derive(hash_code = md5(emp_id,full_name,salary,location),",
+				"     partitionBy('hash', 1)) ~> hashcodederivedColumn1",
+				"azursqlsource1 derive(hash_code = md5(emp_id,full_name,salary,location),",
+				"     partitionBy('hash', 1)) ~> hashcode2derivedColumn1",
+				"hashcodederivedColumn1, hashcode2derivedColumn1 exists(hashcodederivedColumn1@hash_code == hashcode2derivedColumn1@hash_code,",
+				"     negate:true,",
+				"     partitionBy('hash', 1),",
+				"     broadcast: 'auto')~> hashcodeexists1",
+				"hashcodeexists1 derive(is_activty = 1,",
+				"     partitionBy('hash', 1)) ~> isactivyderivedColumn1",
+				"isactivyderivedColumn1 select(mapColumn(",
+				"          emp_id,",
+				"          full_name,",
+				"          salary,",
+				"          location,",
+				"          is_activty",
+				"     ),",
+				"     partitionBy('hash', 1),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> insectselect1",
+				"hashcode2derivedColumn1, hashcodederivedColumn1 exists(azursqlsource1@emp_id == source1datalake@emp_id,",
+				"     negate:false,",
+				"     partitionBy('hash', 1),",
+				"     broadcast: 'auto')~> updateexists1",
+				"updateexists1, hashcodeexists1 exists(hashcode2derivedColumn1@hash_code == hashcodederivedColumn1@hash_code,",
+				"     negate:true,",
+				"     partitionBy('hash', 1),",
+				"     broadcast: 'auto')~> exists1hc",
+				"exists1hc derive(Is_Ativity = 0,",
+				"     partitionBy('hash', 1)) ~> derivedColumn1",
+				"derivedColumn1 alterRow(updateIf(true()),",
+				"     partitionBy('hash', 1)) ~> updatealterRow1",
+				"updatealterRow1 select(mapColumn(",
+				"          surrkey,",
+				"          emp_id,",
+				"          full_name,",
+				"          salary,",
+				"          location,",
+				"          Is_Ativity",
+				"     ),",
+				"     partitionBy('hash', 1),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"insectselect1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          surrkey as integer,",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string,",
+				"          Is_Ativity as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     partitionBy('hash', 1)) ~> azuresqlsink1"
+			]
+		}
+	}
+}

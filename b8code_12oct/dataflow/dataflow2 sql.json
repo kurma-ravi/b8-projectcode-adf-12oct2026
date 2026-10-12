@@ -1,0 +1,63 @@
+{
+	"name": "dataflow2 sql",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "scd_1DelimitedText5",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "scd_1AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "sink1csd1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "scd1alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     partitionBy('hash', 1)) ~> source1",
+				"source1 alterRow(upsertIf(1==1),",
+				"     partitionBy('hash', 1)) ~> scd1alterRow1",
+				"scd1alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          emp_id as integer,",
+				"          full_name as string,",
+				"          salary as integer,",
+				"          location as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['emp_id'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     partitionBy('hash', 1)) ~> sink1csd1"
+			]
+		}
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"name": "ashok123adf",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "ea88aa1c-9ba5-42bf-b156-d444d52e3667",
+		"tenantId": "12997c62-7eef-42b7-91bd-41e7bed4646c"
+	}
+}

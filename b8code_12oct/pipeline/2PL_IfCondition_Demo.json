@@ -1,0 +1,22 @@
+{
+	"name": "2PL_IfCondition_Demo",
+	"properties": {
+		"activities": [
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(1, 1)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-10-12T06:57:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

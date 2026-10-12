@@ -1,0 +1,36 @@
+{
+	"name": "1PL_SetVariable_Demo",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set_FileName",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "sales.csv",
+					"value": {
+						"value": "sales.csv",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"v_FileName": {
+				"type": "String",
+				"defaultValue": "sales.csv"
+			},
+			"sales.csv": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-10-12T06:33:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
